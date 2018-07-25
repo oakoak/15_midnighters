@@ -4,9 +4,15 @@ import datetime
 
 
 def load_attempts(dev_url):
-    response = requests.get(dev_url).json()
-    for page in response["records"]:
-        yield page
+    page_number = 0
+    while True:
+        page_number += 1
+        payload = {'page': page_number}
+        response = requests.get(dev_url, params=payload).json()
+        for page in response["records"]:
+            yield page
+        if page_number == response["number_of_pages"]:
+            break
 
 
 def get_local_user_time(attempt):
@@ -30,7 +36,7 @@ def print_midnighters(midnighters):
 
 
 if __name__ == '__main__':
-    dev_url = "https://devman.org/api/challenges/solution_attempts/?page=2"
+    dev_url = "https://devman.org/api/challenges/solution_attempts/"
     time_from = 0
     time_to = 6
 
