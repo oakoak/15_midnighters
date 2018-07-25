@@ -8,10 +8,10 @@ def load_attempts(dev_url):
     while True:
         page_number += 1
         payload = {'page': page_number}
-        response = requests.get(dev_url, params=payload).json()
-        for page in response["records"]:
-            yield page
-        if page_number == response["number_of_pages"]:
+        data_from_page = requests.get(dev_url, params=payload).json()
+        for record in data_from_page["records"]:
+            yield record
+        if page_number == data_from_page["number_of_pages"]:
             break
 
 
@@ -20,29 +20,27 @@ def get_local_user_time(attempt):
     return datetime.datetime.fromtimestamp(attempt['timestamp'], time_zone)
 
 
-def get_midnighters(attempt, time_from, time_to):
-    midnighters = []
-    for user in attempt:
-        user_name = user["username"]
-        if time_from <= get_local_user_time(user).hour <= time_to \
-                and user_name not in midnighters:
-            midnighters.append(user_name)
+def get_midnighters(attempts, hour_from, hour_to):
+    midnighters = set()
+    for attempt in attempts:
+        user_name = attempt["username"]
+        if hour_from <= get_local_user_time(attempt).hour <= hour_to:
+            midnighters.add(user_name)
     return midnighters
 
 
 def print_midnighters(midnighters):
-    for midnighter in midnighters:
-        print(midnighter)
+    print("\n".join(midnighters))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     dev_url = "https://devman.org/api/challenges/solution_attempts/"
-    time_from = 0
-    time_to = 6
+    hour_from = 0
+    hour_to = 6
 
     try:
         attempt = load_attempts(dev_url)
-        midnighters = get_midnighters(attempt, time_from, time_to)
+        midnighters = get_midnighters(attempt, hour_from, hour_to)
     except requests.HTTPError as error:
         exit("Error: {}".format(error))
 
