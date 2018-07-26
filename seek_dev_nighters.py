@@ -39,8 +39,8 @@ if __name__ == "__main__":
     hour_to = 6
 
     try:
-        attempt = load_attempts(dev_url)
-        midnighters = get_midnighters(attempt, hour_from, hour_to)
+        attempts = load_attempts(dev_url)
+        midnighters = get_midnighters(attempts, hour_from, hour_to)
     except requests.HTTPError as error:
         exit("Error: {}".format(error))
 
